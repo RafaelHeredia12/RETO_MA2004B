@@ -1,0 +1,5 @@
+[core]
+    remote = storage
+['remote "storage"']
+    url = s3://dvc
+    endpointurl = https://dagshub.com/RafaelHeredia12/RETO_MA2004B.s3
