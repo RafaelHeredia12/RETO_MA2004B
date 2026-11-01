@@ -39,3 +39,5 @@ Thumbs.db
 ## sí deben trackearse con DVC
 !data/raw/*.age
 !data/processed/*.age
+data/raw/*.xlsx
+data/processed/*.csv
