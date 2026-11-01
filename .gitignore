@@ -38,4 +38,5 @@ Thumbs.db
 ## Los archivos .age (encriptados)
 ## sí deben trackearse con DVC
 !data/raw/*.age
-!data/processed/*.age
+!data/processed/*.agedata/raw/*.xlsx
+data/processed/*.csv
