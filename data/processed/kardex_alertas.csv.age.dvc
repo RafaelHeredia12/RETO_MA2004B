@@ -1,0 +1,5 @@
+outs:
+- md5: 4ed33287a4ec138b32f861b74575671e
+  size: 15992403
+  hash: md5
+  path: kardex_alertas.csv.age
