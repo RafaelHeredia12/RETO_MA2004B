@@ -1,5 +1,5 @@
 outs:
-- md5: cd64dce55a9292797118ed206f010f58
-  size: 542
+- md5: 8c136b555e7d112cf366b749be2478a0
+  size: 635
   hash: md5
   path: resumen_calidad.csv.age
