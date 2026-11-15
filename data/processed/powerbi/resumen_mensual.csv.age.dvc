@@ -1,0 +1,5 @@
+outs:
+- md5: 271ed4c5ba6add470404a6f9a2db38cd
+  size: 4372
+  hash: md5
+  path: resumen_mensual.csv.age

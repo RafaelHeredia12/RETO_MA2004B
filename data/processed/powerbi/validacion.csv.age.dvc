@@ -1,0 +1,5 @@
+outs:
+- md5: 1b4db8412db12c58af382f89be601f69
+  size: 3058
+  hash: md5
+  path: validacion.csv.age

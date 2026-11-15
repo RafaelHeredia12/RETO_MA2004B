@@ -1,5 +1,5 @@
 outs:
-- md5: ef735e0eb49f20997ea47887792a3df7
-  size: 18397796
+- md5: 49eb2b9c68c7a3b3c0cd160c7b92bff0
+  size: 18041421
   hash: md5
   path: kardex_limpio.csv.age

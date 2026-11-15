@@ -1,0 +1,5 @@
+outs:
+- md5: 1d332d3cbb78a246ee4cf46c23011c1d
+  size: 8330601
+  hash: md5
+  path: transiciones.csv.age
