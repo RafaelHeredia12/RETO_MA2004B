@@ -1,0 +1,5 @@
+outs:
+- md5: cbd0301d4c42ca7ecc2a8208a693d9e7
+  size: 301
+  hash: md5
+  path: dim_semaforo.csv.age

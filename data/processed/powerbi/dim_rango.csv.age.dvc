@@ -1,0 +1,5 @@
+outs:
+- md5: 28e633bd69551e6e35cc85dbe70fffb5
+  size: 324
+  hash: md5
+  path: dim_rango.csv.age

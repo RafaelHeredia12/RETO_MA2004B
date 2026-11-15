@@ -41,3 +41,10 @@ Thumbs.db
 !data/processed/*.age
 data/raw/*.xlsx
 data/processed/*.csv
+
+## Salidas del pipeline (carpetas dentro de data/processed)
+data/processed/**/*.csv
+data/processed/**/*.xlsx
+data/processed/**/*.json
+## Power BI: el .pbix lleva los datos cargados adentro
+*.pbix

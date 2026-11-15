@@ -1,0 +1,36 @@
+{
+  "name": "Inventarios FCV",
+  "dataColors": ["#2A78D6", "#EB6834", "#1BAF7A", "#EDA100", "#E87BA4", "#008300", "#6250D6", "#E34948"],
+  "foreground": "#14213D",
+  "foregroundNeutralSecondary": "#52514E",
+  "foregroundNeutralTertiary": "#8A8A85",
+  "background": "#FCFCFB",
+  "backgroundLight": "#F2F1EC",
+  "backgroundNeutral": "#E4E3DD",
+  "tableAccent": "#2A78D6",
+  "good": "#0CA30C",
+  "neutral": "#FAB219",
+  "bad": "#D03B3B",
+  "maximum": "#1C5CAB",
+  "center": "#86B6EF",
+  "minimum": "#E8F1FC",
+  "textClasses": {
+    "title": { "fontFace": "Segoe UI Semibold", "fontSize": 14, "color": "#14213D" },
+    "header": { "fontFace": "Segoe UI Semibold", "fontSize": 12, "color": "#14213D" },
+    "label": { "fontFace": "Segoe UI", "fontSize": 10, "color": "#52514E" },
+    "callout": { "fontFace": "Segoe UI Semibold", "fontSize": 28, "color": "#14213D" }
+  },
+  "visualStyles": {
+    "page": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#FCFCFB" } }, "transparency": 0 }]
+      }
+    },
+    "*": {
+      "*": {
+        "border": [{ "show": true, "color": { "solid": { "color": "#E4E3DD" } }, "radius": 8 }],
+        "visualHeader": [{ "show": true }]
+      }
+    }
+  }
+}

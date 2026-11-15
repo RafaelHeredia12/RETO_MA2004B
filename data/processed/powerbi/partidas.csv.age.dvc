@@ -1,0 +1,5 @@
+outs:
+- md5: c68fbc40c9cdd8b2363816fefa62fc64
+  size: 20633807
+  hash: md5
+  path: partidas.csv.age

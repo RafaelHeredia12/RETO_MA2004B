@@ -1,0 +1,5 @@
+outs:
+- md5: 07a5dde5242003f73517878054f7e8ce
+  size: 380
+  hash: md5
+  path: dim_linea.csv.age

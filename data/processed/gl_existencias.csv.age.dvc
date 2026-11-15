@@ -1,5 +1,5 @@
 outs:
-- md5: 195ee310c717528a0001290047f8c311
+- md5: c91b26ab007ad798816ff422f6789781
   size: 807
   hash: md5
   path: gl_existencias.csv.age
