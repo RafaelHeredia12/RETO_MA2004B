@@ -1,0 +1,228 @@
+// =====================================================================
+//  Medidas DAX del dashboard · Monitoreo de saldo de inventarios (FCV)
+//
+//  Antes de pegar:
+//   - Crea una tabla vacía para guardarlas: Inicio → Especificar datos → nombre "Medidas" → Cargar.
+//   - Crea las dos tablas auxiliares (Modelado → Nueva tabla) del bloque 0.
+//   - Cada medida: clic derecho en "Medidas" → Nueva medida → pega UNA medida.
+//
+//  Idea clave: el inventario es un SALDO, no un flujo. Si el usuario selecciona varios
+//  meses, sumar saldos no tiene sentido; por eso las tarjetas toman el ÚLTIMO mes de la
+//  selección. En una gráfica por mes, cada punto es su propio mes y todo funciona igual.
+// =====================================================================
+
+
+// ---------- 0. Tablas auxiliares (Modelado → Nueva tabla) ----------
+
+Moneda =
+DATATABLE ( "Moneda", STRING, "Orden", INTEGER, { { "CLP", 1 }, { "MXN", 2 } } )
+
+Politica Semaforo =
+DATATABLE (
+    "Politica", STRING, "Orden", INTEGER,
+    { { "Días (hoja de criterios)", 1 }, { "Meses (fórmulas del Kardex)", 2 } }
+)
+
+
+// ---------- 1. Contexto ----------
+
+Ultimo Mes =
+MAX ( resumen_mensual[MES] )
+
+Titulo Periodo =
+"Cierre de "
+    & CALCULATE (
+        SELECTEDVALUE ( resumen_mensual[MES_ETIQUETA] ),
+        resumen_mensual[MES] = MAX ( resumen_mensual[MES] )
+    )
+
+Factor Moneda =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN
+    IF (
+        SELECTEDVALUE ( Moneda[Moneda], "CLP" ) = "MXN",
+        CALCULATE ( MAX ( resumen_mensual[TC_MXN_POR_CLP] ), resumen_mensual[MES] = U ),
+        1
+    )
+
+Etiqueta Moneda =
+SELECTEDVALUE ( Moneda[Moneda], "CLP" )
+
+
+// ---------- 2. Conciliación (alerta 1) ----------
+
+Saldo GL =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN CALCULATE ( SUM ( resumen_mensual[SALDO_GL] ), resumen_mensual[MES] = U ) * [Factor Moneda]
+
+Total Kardex =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN CALCULATE ( SUM ( resumen_mensual[TOTAL_KARDEX] ), resumen_mensual[MES] = U ) * [Factor Moneda]
+
+Recetario =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN CALCULATE ( SUM ( resumen_mensual[RECETARIO] ), resumen_mensual[MES] = U ) * [Factor Moneda]
+
+Kardex mas Recetario =
+[Total Kardex] + [Recetario]
+
+Diferencia Kardex vs GL =
+[Total Kardex] - [Saldo GL]
+
+Diferencia No Explicada =
+[Kardex mas Recetario] - [Saldo GL]
+
+% Discrepancia =
+DIVIDE ( [Diferencia No Explicada], [Saldo GL] )
+
+% Diferencia antes de Recetario =
+DIVIDE ( [Diferencia Kardex vs GL], [Saldo GL] )
+
+Estado Conciliacion =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN CALCULATE ( SELECTEDVALUE ( resumen_mensual[ESTADO_CONCILIACION] ), resumen_mensual[MES] = U )
+
+Semaforo Conciliacion =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN CALCULATE ( SELECTEDVALUE ( resumen_mensual[SEMAFORO_CONCILIACION] ), resumen_mensual[MES] = U )
+
+Color Conciliacion =
+SWITCH ( [Semaforo Conciliacion], "VERDE", "#0CA30C", "ÁMBAR", "#FAB219", "ROJO", "#D03B3B", "#8A8A85" )
+
+
+// ---------- 3. Variación mensual (alerta 2) ----------
+
+Variacion Mensual % =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN CALCULATE ( SELECTEDVALUE ( resumen_mensual[VARIACION_PCT] ), resumen_mensual[MES] = U )
+
+Alerta Variacion =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN CALCULATE ( SELECTEDVALUE ( resumen_mensual[ALERTA_VARIACION] ), resumen_mensual[MES] = U )
+
+Color Variacion =
+IF ( ABS ( [Variacion Mensual %] ) >= 0.05, "#D03B3B", "#0CA30C" )
+
+Umbral Variacion =
+0.05
+
+
+// ---------- 4. Inventario y antigüedad (alerta 3 y KPIs) ----------
+
+Valor Inventario =
+VAR U = MAX ( partidas[MES] )
+VAR MonedaSel = SELECTEDVALUE ( Moneda[Moneda], "CLP" )
+RETURN
+    CALCULATE (
+        IF ( MonedaSel = "MXN", SUM ( partidas[VALORIZACION_MXN] ), SUM ( partidas[VALORIZACION] ) ),
+        partidas[MES] = U
+    )
+
+Partidas =
+VAR U = MAX ( partidas[MES] )
+RETURN CALCULATE ( COUNTROWS ( partidas ), partidas[MES] = U )
+
+SKUs Unicos =
+VAR U = MAX ( partidas[MES] )
+RETURN CALCULATE ( DISTINCTCOUNT ( partidas[CODIGO] ), partidas[MES] = U )
+
+Partidas Mas 1 Anio =
+CALCULATE ( [Partidas], partidas[MAS_1_ANIO] = 1 )
+
+Valor Mas 1 Anio =
+CALCULATE ( [Valor Inventario], partidas[MAS_1_ANIO] = 1 )
+
+% Valor Mas 1 Anio =
+DIVIDE ( [Valor Mas 1 Anio], [Valor Inventario] )
+
+Partidas Riesgo Alto =
+CALCULATE ( [Partidas], partidas[RIESGO_POLITICA] = "RIESGO ALTO" )
+
+Valor Riesgo Alto =
+CALCULATE ( [Valor Inventario], partidas[RIESGO_POLITICA] = "RIESGO ALTO" )
+
+// Semáforo según la política elegida en el segmentador "Politica Semaforo"
+Partidas Rojo =
+IF (
+    SELECTEDVALUE ( 'Politica Semaforo'[Politica], "Días (hoja de criterios)" ) = "Días (hoja de criterios)",
+    CALCULATE ( [Partidas], partidas[SEMAFORO_DIAS] = "ROJO" ),
+    CALCULATE ( [Partidas], partidas[SEMAFORO_MESES] = "ROJO" )
+)
+
+Partidas Ambar =
+IF (
+    SELECTEDVALUE ( 'Politica Semaforo'[Politica], "Días (hoja de criterios)" ) = "Días (hoja de criterios)",
+    CALCULATE ( [Partidas], partidas[SEMAFORO_DIAS] = "ÁMBAR" ),
+    CALCULATE ( [Partidas], partidas[SEMAFORO_MESES] = "ÁMBAR" )
+)
+
+Partidas Verde =
+IF (
+    SELECTEDVALUE ( 'Politica Semaforo'[Politica], "Días (hoja de criterios)" ) = "Días (hoja de criterios)",
+    CALCULATE ( [Partidas], partidas[SEMAFORO_DIAS] = "VERDE" ),
+    CALCULATE ( [Partidas], partidas[SEMAFORO_MESES] = "VERDE" )
+)
+
+Valor Rojo =
+IF (
+    SELECTEDVALUE ( 'Politica Semaforo'[Politica], "Días (hoja de criterios)" ) = "Días (hoja de criterios)",
+    CALCULATE ( [Valor Inventario], partidas[SEMAFORO_DIAS] = "ROJO" ),
+    CALCULATE ( [Valor Inventario], partidas[SEMAFORO_MESES] = "ROJO" )
+)
+
+% Valor Rojo =
+DIVIDE ( [Valor Rojo], [Valor Inventario] )
+
+// Comparación directa de las dos políticas (no depende del segmentador)
+Rojo Politica Dias =
+CALCULATE ( [Partidas], partidas[SEMAFORO_DIAS] = "ROJO" )
+
+Rojo Politica Meses =
+CALCULATE ( [Partidas], partidas[SEMAFORO_MESES] = "ROJO" )
+
+Dias Promedio Antiguedad =
+VAR U = MAX ( partidas[MES] )
+RETURN CALCULATE ( AVERAGE ( partidas[DIAS_ANTIG] ), partidas[MES] = U )
+
+
+// ---------- 5. Alertas ----------
+
+Alertas =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN CALCULATE ( COUNTROWS ( alertas ), alertas[MES] = U )
+
+Alertas Nivel Alto =
+CALCULATE ( [Alertas], alertas[NIVEL] = "ALTO" )
+
+Alertas Nivel Medio =
+CALCULATE ( [Alertas], alertas[NIVEL] = "MEDIO" )
+
+Valor en Alerta =
+VAR U = MAX ( resumen_mensual[MES] )
+RETURN CALCULATE ( SUM ( alertas[VALOR_CLP] ), alertas[MES] = U, alertas[TIPO_ALERTA] = "3. Antigüedad" ) * [Factor Moneda]
+
+
+// ---------- 6. Calidad y validación ----------
+
+Partidas Conversion =
+CALCULATE ( [Partidas], partidas[ALERTA_CONVERSION] <> "OK" )
+
+// Fecha de compra que retrocedió respecto al mes anterior (o que se arrastra): posible error de captura
+Partidas Fecha Sospechosa =
+CALCULATE ( [Partidas], partidas[FULCOM_SOSPECHOSA] = 1 )
+
+Valor Fecha Sospechosa =
+CALCULATE ( [Valor Inventario], partidas[FULCOM_SOSPECHOSA] = 1 )
+
+% Coincidencia con Excel =
+DIVIDE ( SUM ( validacion[COINCIDEN] ), SUM ( validacion[PARTIDAS] ) )
+
+
+// ---------- 7. Transiciones (vista previa del modelo de Markov) ----------
+
+// % de SKUs que, estando en un rango, pasan al rango de la columna en el mes siguiente
+Probabilidad Transicion =
+DIVIDE (
+    COUNTROWS ( transiciones ),
+    CALCULATE ( COUNTROWS ( transiciones ), REMOVEFILTERS ( transiciones[RANGO_SIGUIENTE], transiciones[RANGO_SIGUIENTE_ORDEN] ) )
+)
