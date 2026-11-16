@@ -62,7 +62,7 @@ Sigue las instrucciones al inicio de `power_query.m`. En resumen: crea el parám
 
 1. Inicio → Especificar datos → tabla vacía llamada `Medidas` → Cargar.
 2. Modelado → Nueva tabla → pega `Moneda` y luego `Politica Semaforo` (bloque 0 de `medidas.dax`).
-3. Cada medida: clic derecho en `Medidas` → Nueva medida → pega una.
+3. Medidas, forma rápida: Vista de consultas DAX (4.º icono de la izquierda) → pega todo `medidas_consulta.dax` → **Actualizar el modelo con cambios** (crea las 44 de golpe) → Ejecutar para ver la tabla de prueba por mes. Forma manual: clic derecho en `Medidas` → Nueva medida → pega una de `medidas.dax`.
 4. Formato sugerido: montos `#,0` con unidades en millones en las tarjetas; porcentajes `0.00%`.
 
 **Por qué las tarjetas usan "el último mes"**: el inventario es un saldo. Si alguien selecciona enero a julio, sumar siete saldos no significa nada; las medidas toman el último mes de la selección. En gráficas por mes, cada punto usa su propio mes.
@@ -94,7 +94,7 @@ Estos son los **KPI que pidió FEMSA**: saldo total, % de discrepancia Kardex vs
 
 ### Página 2 · Conciliación y variación (alertas 1 y 2)
 
-- Tabla por mes: `MES_ETIQUETA`, `Saldo GL`, `Total Kardex`, `Recetario`, `Diferencia Kardex vs GL`, `Diferencia No Explicada`, `% Discrepancia`, `Estado Conciliacion`.
+- Tabla por mes: `MES_ETIQUETA`, `Saldo GL`, `Total Kardex`, `Monto Recetario`, `Diferencia Kardex vs GL`, `Diferencia No Explicada`, `% Discrepancia`, `Estado Conciliacion`.
 - Columnas: `Variacion Mensual %` por mes, con líneas de referencia en +5 % y −5 % (panel Análisis → Línea constante) y color de barra por `Color Variacion`.
 - Texto fijo que explique la lectura: el recetario no tiene integración (FEMSA); lo que importa es la **diferencia no explicada**.
 
@@ -102,7 +102,7 @@ Estos son los **KPI que pidió FEMSA**: saldo total, % de discrepancia Kardex vs
 
 - Segmentadores: Mes, `dim_rango[RANGO_ANTIG]`, `dim_semaforo[SEMAFORO]`, `dim_linea[NOMBRE_LINEA]`, `partidas[POLITICA_CANJE]`, `Politica Semaforo[Politica]`.
 - Barras apiladas: valor por `RANGO_ANTIG` y `POLITICA_CANJE`.
-- Matriz: filas `NOMBRE_LINEA`, columnas `SEMAFORO_DIAS`, valores `Partidas` y `Valor Inventario`.
+- Matriz: filas `NOMBRE_LINEA`, columnas `SEMAFORO_DIAS`, valores `Total Partidas` y `Valor Inventario`.
 - Columnas agrupadas "Comparación de políticas": `Rojo Politica Dias` vs `Rojo Politica Meses` por mes (muestra que la política en días marca más partidas).
 - Tabla Top 20 riesgo alto: `CODIGO`, `DESCRIPTOR`, `NOMBRE_LINEA`, `DIAS_ANTIG`, `Valor Inventario`, filtrada a `RIESGO_POLITICA = RIESGO ALTO` (filtro de nivel visual → N superior 20 por valor).
 
