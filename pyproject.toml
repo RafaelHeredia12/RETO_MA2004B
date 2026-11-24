@@ -28,6 +28,7 @@ dependencies = [
     "scipy>=1.18.1",
     "seaborn>=0.13.2",
     "statsmodels>=0.15.0",
+    "streamlit>=1.67.0",
 ]
 
 [project.scripts]
