@@ -59,12 +59,12 @@ Total Kardex =
 VAR U = MAX ( resumen_mensual[MES] )
 RETURN CALCULATE ( SUM ( resumen_mensual[TOTAL_KARDEX] ), resumen_mensual[MES] = U ) * [Factor Moneda]
 
-Recetario =
+Monto Recetario =
 VAR U = MAX ( resumen_mensual[MES] )
 RETURN CALCULATE ( SUM ( resumen_mensual[RECETARIO] ), resumen_mensual[MES] = U ) * [Factor Moneda]
 
 Kardex mas Recetario =
-[Total Kardex] + [Recetario]
+[Total Kardex] + [Monto Recetario]
 
 Diferencia Kardex vs GL =
 [Total Kardex] - [Saldo GL]
@@ -118,7 +118,7 @@ RETURN
         partidas[MES] = U
     )
 
-Partidas =
+Total Partidas =
 VAR U = MAX ( partidas[MES] )
 RETURN CALCULATE ( COUNTROWS ( partidas ), partidas[MES] = U )
 
@@ -127,7 +127,7 @@ VAR U = MAX ( partidas[MES] )
 RETURN CALCULATE ( DISTINCTCOUNT ( partidas[CODIGO] ), partidas[MES] = U )
 
 Partidas Mas 1 Anio =
-CALCULATE ( [Partidas], partidas[MAS_1_ANIO] = 1 )
+CALCULATE ( [Total Partidas], partidas[MAS_1_ANIO] = 1 )
 
 Valor Mas 1 Anio =
 CALCULATE ( [Valor Inventario], partidas[MAS_1_ANIO] = 1 )
@@ -136,7 +136,7 @@ CALCULATE ( [Valor Inventario], partidas[MAS_1_ANIO] = 1 )
 DIVIDE ( [Valor Mas 1 Anio], [Valor Inventario] )
 
 Partidas Riesgo Alto =
-CALCULATE ( [Partidas], partidas[RIESGO_POLITICA] = "RIESGO ALTO" )
+CALCULATE ( [Total Partidas], partidas[RIESGO_POLITICA] = "RIESGO ALTO" )
 
 Valor Riesgo Alto =
 CALCULATE ( [Valor Inventario], partidas[RIESGO_POLITICA] = "RIESGO ALTO" )
@@ -145,22 +145,22 @@ CALCULATE ( [Valor Inventario], partidas[RIESGO_POLITICA] = "RIESGO ALTO" )
 Partidas Rojo =
 IF (
     SELECTEDVALUE ( 'Politica Semaforo'[Politica], "Días (hoja de criterios)" ) = "Días (hoja de criterios)",
-    CALCULATE ( [Partidas], partidas[SEMAFORO_DIAS] = "ROJO" ),
-    CALCULATE ( [Partidas], partidas[SEMAFORO_MESES] = "ROJO" )
+    CALCULATE ( [Total Partidas], partidas[SEMAFORO_DIAS] = "ROJO" ),
+    CALCULATE ( [Total Partidas], partidas[SEMAFORO_MESES] = "ROJO" )
 )
 
 Partidas Ambar =
 IF (
     SELECTEDVALUE ( 'Politica Semaforo'[Politica], "Días (hoja de criterios)" ) = "Días (hoja de criterios)",
-    CALCULATE ( [Partidas], partidas[SEMAFORO_DIAS] = "ÁMBAR" ),
-    CALCULATE ( [Partidas], partidas[SEMAFORO_MESES] = "ÁMBAR" )
+    CALCULATE ( [Total Partidas], partidas[SEMAFORO_DIAS] = "ÁMBAR" ),
+    CALCULATE ( [Total Partidas], partidas[SEMAFORO_MESES] = "ÁMBAR" )
 )
 
 Partidas Verde =
 IF (
     SELECTEDVALUE ( 'Politica Semaforo'[Politica], "Días (hoja de criterios)" ) = "Días (hoja de criterios)",
-    CALCULATE ( [Partidas], partidas[SEMAFORO_DIAS] = "VERDE" ),
-    CALCULATE ( [Partidas], partidas[SEMAFORO_MESES] = "VERDE" )
+    CALCULATE ( [Total Partidas], partidas[SEMAFORO_DIAS] = "VERDE" ),
+    CALCULATE ( [Total Partidas], partidas[SEMAFORO_MESES] = "VERDE" )
 )
 
 Valor Rojo =
@@ -175,10 +175,10 @@ DIVIDE ( [Valor Rojo], [Valor Inventario] )
 
 // Comparación directa de las dos políticas (no depende del segmentador)
 Rojo Politica Dias =
-CALCULATE ( [Partidas], partidas[SEMAFORO_DIAS] = "ROJO" )
+CALCULATE ( [Total Partidas], partidas[SEMAFORO_DIAS] = "ROJO" )
 
 Rojo Politica Meses =
-CALCULATE ( [Partidas], partidas[SEMAFORO_MESES] = "ROJO" )
+CALCULATE ( [Total Partidas], partidas[SEMAFORO_MESES] = "ROJO" )
 
 Dias Promedio Antiguedad =
 VAR U = MAX ( partidas[MES] )
@@ -205,11 +205,11 @@ RETURN CALCULATE ( SUM ( alertas[VALOR_CLP] ), alertas[MES] = U, alertas[TIPO_AL
 // ---------- 6. Calidad y validación ----------
 
 Partidas Conversion =
-CALCULATE ( [Partidas], partidas[ALERTA_CONVERSION] <> "OK" )
+CALCULATE ( [Total Partidas], partidas[ALERTA_CONVERSION] <> "OK" )
 
 // Fecha de compra que retrocedió respecto al mes anterior (o que se arrastra): posible error de captura
 Partidas Fecha Sospechosa =
-CALCULATE ( [Partidas], partidas[FULCOM_SOSPECHOSA] = 1 )
+CALCULATE ( [Total Partidas], partidas[FULCOM_SOSPECHOSA] = 1 )
 
 Valor Fecha Sospechosa =
 CALCULATE ( [Valor Inventario], partidas[FULCOM_SOSPECHOSA] = 1 )
