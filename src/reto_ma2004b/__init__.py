@@ -7,6 +7,7 @@ Módulos:
     reglas       alertas por partida (réplica de las fórmulas de Excel + política en días)
     indicadores  conciliación, variación, KPIs, tabla de alertas y transiciones
     validacion   comparación contra los valores calculados por Excel
+    markov       cadenas de Markov sobre las alertas: estimación, propiedades y predicción
     pipeline     script ejecutable: `uv run reto-ma2004b --help`
 """
 
